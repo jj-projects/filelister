@@ -1,7 +1,0 @@
-Datum der Liste:  2012-05-03 18:10:55
-Datei: /Volumes/JJRDataHD/Coding/repositories_jj/jjprojects_svn/filelister/./..txt
-Datei: /Volumes/JJRDataHD/Coding/repositories_jj/jjprojects_svn/filelister/./.DS_Store
-Datei: /Volumes/JJRDataHD/Coding/repositories_jj/jjprojects_svn/filelister/./.classpath
-Datei: /Volumes/JJRDataHD/Coding/repositories_jj/jjprojects_svn/filelister/./.project
-Ordner: /Volumes/JJRDataHD/Coding/repositories_jj/jjprojects_svn/filelister/./dist
-Ordner: /Volumes/JJRDataHD/Coding/repositories_jj/jjprojects_svn/filelister/./src
