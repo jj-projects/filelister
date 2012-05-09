@@ -1,126 +1,76 @@
 package de.jjprojects.filelister;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
+import java.io.*;
 import java.util.List;
+import java.awt.event.*;
 
-import de.vdheide.mp3.MP3Properties;
-import de.vdheide.mp3.NoMP3FrameException;
+import javax.swing.*;
+import javax.swing.filechooser.*;
 
-/**
- * Recursive file listing under a specified directory.
- *  
- * @author javapractices.com
- * @author Alex Wong
- * @author anonymous user
- */
-public final class FileLister {
+public class FileLister implements ActionListener {
 
-   public static String getDateTime4SQL(Date date) {
-      DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-      return dateFormat.format(date);
+   JFrame myFrame = null;
+   JTextArea myPane = null;
+   JMenuItem cmdOpen = null;
+
+   public static void main(String[] a) {
+      (new FileLister()).work();
    }
+   private void work() {
+      myFrame = new JFrame("MP3 Datei Scanner");
+      myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      myFrame.setSize(600,400);
+      
+      myPane = new JTextArea();
+      myPane.setText(
+         "Bitte waehlen Sie einen Ordner aus\n" 
+         + "im Ordner Menu!\n");
+      myFrame.setContentPane(myPane);
 
-   /**
-    * Recursively walk a directory tree and return a List of all
-    * Files found; the List is sorted using File.compareTo().
-    *
-    * @param aStartingDir is a valid directory, which can be read.
-    */
-   static public List<File> getFileListing(File aStartingDir) throws FileNotFoundException {
-      validateDirectory(aStartingDir);
-      List<File> result = getFileListingNoSort(aStartingDir);
-      Collections.sort(result);
-      return result;
+      JMenuBar myBar = new JMenuBar();
+      JMenu myMenu = getFileMenu();
+      myBar.add(myMenu); 
+      myFrame.setJMenuBar(myBar);
+
+      myFrame.setVisible(true);
    }
+   private JMenu getFileMenu() {
+      JMenu myMenu = new JMenu("Ordner");
+      cmdOpen = new JMenuItem("Oeffnen");
+      cmdOpen.addActionListener(this);
+      myMenu.add(cmdOpen);
 
-   // PRIVATE //
-   static private List<File> getFileListingNoSort( File aStartingDir ) throws FileNotFoundException {
-      List<File> result = null;
+      return myMenu;
+   }
+   public void actionPerformed(ActionEvent e) {
+      JFileChooser chooser = new JFileChooser();
+      chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
+      FileNameExtensionFilter filter = new FileNameExtensionFilter("*", "*");
+      chooser.setFileFilter(filter);
+
+      Object cmd = e.getSource();
       try {
-         FileWriter outFile;
-         outFile = new FileWriter(aStartingDir.getAbsolutePath() + "/inhalt.txt");
-         PrintWriter out = new PrintWriter(outFile);
-         out.println("Datum der Liste:  " + FileLister.getDateTime4SQL(new Date()));
-         // out.println("Basis: " + aStartingDir.getName());
+         if (cmd == cmdOpen) {
+            int code = chooser.showOpenDialog(myPane);
+            if (code == JFileChooser.APPROVE_OPTION) {
+               File startingDirectory = chooser.getSelectedFile();
 
+               List<File> files = FileListWorker.getFileListing(startingDirectory);
 
-         result = new ArrayList<File>();
-         File[] filesAndDirs = aStartingDir.listFiles();
-         List<File> filesDirs = Arrays.asList(filesAndDirs);
-         for(File file : filesDirs) {
-            result.add(file); //always add, even if directory
-            if ( ! file.isFile() ) {
-               //must be a directory
-               //recursive call!
-               List<File> deeperList = getFileListingNoSort(file);
-               result.addAll(deeperList);
-               out.println("Ordner: " + file.getAbsolutePath());
-            } else if (0 != file.getName().compareToIgnoreCase("inhalt.txt")) {
-               out.println("Datei: " + file.getName());           
+               //print out all file names, in the the order of File.compareTo()
+               myPane.setText("Bearbeitete Dateien:" + newline + newline);
 
-               try {
-                  MP3Properties mp3Props = new MP3Properties (file);
-                  int frameRate = mp3Props.getSamplerate();
-                  // dateiname kurz, bitrate, spieldauer, variable ?
-                  out.println("       Typ  : MP" + mp3Props.getLayer());
-                  out.println("       Rate : " + frameRate + " Hz");
-                  out.println("       Dauer: " + mp3Props.getLength() + " Sekunden");
-
-               } catch (FileNotFoundException fe){
-                  fe.printStackTrace();
-               } catch (NoMP3FrameException me){
-                  out.println("       Typ  : kein MP3");
-               } catch (ArithmeticException ae) {
-                  out.println("       Typ  : kein MP3");
-               } catch (IOException ei){
-                  ei.printStackTrace();
-               } catch (Throwable th){
-                  th.printStackTrace();
-               } finally {
-                  out.println("       Size : " + file.length() + " Bytes");
-                  out.println("       Date : " + FileLister.getDateTime4SQL(new Date (file.lastModified())));
+              for(File file : files ){
+                 myPane.append(file.getAbsolutePath() + newline);
+                 System.out.println(file);
                }
             }
          }
-         out.close();
-
-      } catch (IOException e1) {
-         e1.printStackTrace();
-      }
-      return result;
-   }
-
-
-   /**
-    * Directory is valid if it exists, does not represent a file, and can be read.
-    */
-   static private void validateDirectory ( File aDirectory ) throws FileNotFoundException {
-      if (aDirectory == null) {
-         throw new IllegalArgumentException("Directory should not be null.");
-      }
-      if (!aDirectory.exists()) {
-         throw new FileNotFoundException("Directory does not exist: " + aDirectory);
-      }
-      if (!aDirectory.isDirectory()) {
-         throw new IllegalArgumentException("Is not a directory: " + aDirectory);
-      }
-      if (!aDirectory.canRead()) {
-         throw new IllegalArgumentException("Directory cannot be read: " + aDirectory);
+      } catch (Exception f) {
+          f.printStackTrace();
       }
    }
+   private final static String newline = "\n";
 
-} 
-
-
-
+}
