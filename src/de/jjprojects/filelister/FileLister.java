@@ -1,16 +1,20 @@
 package de.jjprojects.filelister;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.io.*;
-import java.net.FileNameMap;
-import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
+import de.vdheide.mp3.MP3Properties;
+import de.vdheide.mp3.NoMP3FrameException;
 
 /**
  * Recursive file listing under a specified directory.
@@ -21,20 +25,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public final class FileLister {
 
-   /**
-    * Demonstrate use.
-    * 
-    * @param aArgs - <tt>aArgs[0]</tt> is the full name of an existing 
-    * directory that can be read.
-    */
-   public static void main(String... aArgs) throws FileNotFoundException {
-      File startingDirectory= new File("./dist");
-      List<File> files = FileLister.getFileListing(startingDirectory);
-
-      //print out all file names, in the the order of File.compareTo()
-      for(File file : files ){
-         System.out.println(file);
-      }
+   public static String getDateTime4SQL(Date date) {
+      DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+      return dateFormat.format(date);
    }
 
    /**
@@ -55,8 +48,6 @@ public final class FileLister {
       List<File> result = null;
 
       try {
-         FileNameMap fileNameMap = URLConnection.getFileNameMap();
-
          FileWriter outFile;
          outFile = new FileWriter(aStartingDir.getAbsolutePath() + "/inhalt.txt");
          PrintWriter out = new PrintWriter(outFile);
@@ -77,23 +68,27 @@ public final class FileLister {
                out.println("Ordner: " + file.getAbsolutePath());
             } else if (0 != file.getName().compareToIgnoreCase("inhalt.txt")) {
                out.println("Datei: " + file.getName());           
-               out.println("       Typ  : " + fileNameMap.getContentTypeFor(file.getName()));
 
                try {
-                  AudioFileFormat aff = AudioSystem.getAudioFileFormat(file);
-                  AudioFormat format = aff.getFormat();
-
-                  long audioFileLength = file.length();
-                  int frameSize = aff.getFrameLength();
-                  float frameRate = format.getFrameRate();
-                  float durationInSeconds = (audioFileLength / (frameSize * frameRate));
+                  MP3Properties mp3Props = new MP3Properties (file);
+                  int frameRate = mp3Props.getSamplerate();
                   // dateiname kurz, bitrate, spieldauer, variable ?
-                  out.println("       Rate : " + frameRate);
-                  out.println("       Dauer: " + durationInSeconds);
+                  out.println("       Typ  : MP" + mp3Props.getLayer());
+                  out.println("       Rate : " + frameRate + " Hz");
+                  out.println("       Dauer: " + mp3Props.getLength() + " Sekunden");
 
+               } catch (FileNotFoundException fe){
+                  fe.printStackTrace();
+               } catch (NoMP3FrameException me){
+                  out.println("       Typ  : kein MP3");
+               } catch (ArithmeticException ae) {
+                  out.println("       Typ  : kein MP3");
                } catch (IOException ei){
-               } catch (UnsupportedAudioFileException e) {
-                  out.println("       Size : " + file.length() + " Byte");
+                  ei.printStackTrace();
+               } catch (Throwable th){
+                  th.printStackTrace();
+               } finally {
+                  out.println("       Size : " + file.length() + " Bytes");
                   out.println("       Date : " + FileLister.getDateTime4SQL(new Date (file.lastModified())));
                }
             }
@@ -101,11 +96,11 @@ public final class FileLister {
          out.close();
 
       } catch (IOException e1) {
-         // TODO Auto-generated catch block
          e1.printStackTrace();
       }
       return result;
    }
+
 
    /**
     * Directory is valid if it exists, does not represent a file, and can be read.
@@ -123,11 +118,6 @@ public final class FileLister {
       if (!aDirectory.canRead()) {
          throw new IllegalArgumentException("Directory cannot be read: " + aDirectory);
       }
-   }
-
-   public static String getDateTime4SQL(Date date) {
-      DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-      return dateFormat.format(date);
    }
 
 } 
