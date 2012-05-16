@@ -19,9 +19,8 @@ import de.vdheide.mp3.NoMP3FrameException;
 /**
  * Recursive file listing under a specified directory.
  *  
- * @author javapractices.com
- * @author Alex Wong
- * @author anonymous user
+ * @author Joerg Juenger, JJ-Projects
+ * @author based on code from Alex Wang
  */
 public final class FileListWorker {
 

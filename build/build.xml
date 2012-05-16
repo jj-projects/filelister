@@ -24,6 +24,7 @@
    <target name="prepare" depends="clean">
     <mkdir dir="${outputDir}" />
     <mkdir dir="${distDir}" />
+    <mkdir dir="${docDir}" />
    	<mkdir dir="${distDir}/logs" />
     
     <exec executable="git" output="${distDir}/svndump">
@@ -81,7 +82,21 @@
 	<target name="stage" depends="jar">
 		<copy file="${distDir}/${short-class}.jar" todir="${releaseDir}"/>
 	</target>
-	
+	<target name="doc" depends="prepare">
+		 <javadoc
+		          access="public"
+		           destdir="${docDir}"
+		           author="true"
+		           version="true"
+		           use="true"
+		           windowtitle="${name} API Documentation"
+		       >
+		        <fileset dir="${sourceDir}" defaultexcludes="yes">
+		            <include name="**/*.java"/>
+		        </fileset>
+		    </javadoc>
+	</target>
+
 	<target name="run" depends="stage">
 	        <java fork="true" classname="${main-class}">
 	        	<classpath>
