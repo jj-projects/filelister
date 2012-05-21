@@ -7,6 +7,12 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.filechooser.*;
 
+/**
+ * Recursive file listing under a specified directory.
+ *  
+ * @author Joerg Juenger, JJ-Projects
+ * @author based on code from Alex Wang
+ */
 public class FileLister implements ActionListener {
 
    JFrame myFrame = null;
