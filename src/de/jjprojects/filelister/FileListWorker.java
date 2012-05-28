@@ -74,7 +74,9 @@ public final class FileListWorker {
                   // dateiname kurz, bitrate, spieldauer, variable ?
                   out.println("       Typ  : MP" + mp3Props.getLayer());
                   out.println("       Rate : " + frameRate + " Hz");
-                  out.println("       Dauer: " + mp3Props.getLength() + " Sekunden");
+                  long secs = mp3Props.getLength();
+                  long minutes = secs / 60;    
+                  out.println("       Dauer: " + minutes + " Minuten, " + (secs -  (minutes * 60)) + " Sekunden");
 
                } catch (FileNotFoundException fe){
                   fe.printStackTrace();
@@ -87,7 +89,8 @@ public final class FileListWorker {
                } catch (Throwable th){
                   th.printStackTrace();
                } finally {
-                  out.println("       Size : " + file.length() + " Bytes");
+                  float mb = ((float) file.length ()) / (1024 * 1024);
+                  out.println("       Size : " + mb + " MB");
                   out.println("       Date : " + FileListWorker.getDateTime4SQL(new Date (file.lastModified())));
                }
             }

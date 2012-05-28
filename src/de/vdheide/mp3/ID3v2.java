@@ -279,7 +279,7 @@ public class ID3v2 {
 	 * @return <code>Vector</code> of all frames
 	 * @exception NoID3v2TagException If file does not contain ID3v2 tag
 	 */
-	public Vector getFrames() throws NoID3v2TagException {
+	public Vector<ID3v2Frame> getFrames() throws NoID3v2TagException {
 		if (frames == null) {
 			throw new NoID3v2TagException();
 		}
@@ -296,15 +296,15 @@ public class ID3v2 {
 	 * @exception ID3v2NoSuchFrameException If file does not contain requested
 	 *                ID3v2 frame
 	 */
-	public Vector getFrame(String id) throws NoID3v2TagException,
+	public Vector<ID3v2Frame> getFrame(String id) throws NoID3v2TagException,
 			ID3v2NoSuchFrameException {
 		if (frames == null) {
 			throw new NoID3v2TagException();
 		}
 
-		Vector res = new Vector();
+		Vector<ID3v2Frame> res = new Vector<ID3v2Frame>();
 		ID3v2Frame tmp;
-		for (Enumeration e = frames.elements(); e.hasMoreElements();) {
+		for (Enumeration<ID3v2Frame> e = frames.elements(); e.hasMoreElements();) {
 			tmp = (ID3v2Frame) e.nextElement();
 			if (tmp.getID().equals(id)) {
 				res.addElement(tmp);
@@ -326,7 +326,7 @@ public class ID3v2 {
 	 */
 	public void addFrame(ID3v2Frame frame) {
 		if (frames == null) {
-			frames = new Vector();
+			frames = new Vector<ID3v2Frame>();
 		}
 
 		frames.addElement(frame);
@@ -369,7 +369,7 @@ public class ID3v2 {
 
 		ID3v2Frame tmp;
 		boolean found = false; // will be true if at least one frame was found
-		for (Enumeration e = frames.elements(); e.hasMoreElements();) {
+		for (Enumeration<ID3v2Frame> e = frames.elements(); e.hasMoreElements();) {
 			tmp = (ID3v2Frame) e.nextElement();
 			if (tmp.getID().equals(id)) {
 				frames.removeElement(tmp);
@@ -402,7 +402,7 @@ public class ID3v2 {
 		ID3v2Frame tmp;
 		int count = 0; // Number of frames with id found so far
 		boolean removed = false; // will be true if at least frame was removed
-		for (Enumeration e = frames.elements(); e.hasMoreElements();) {
+		for (Enumeration<ID3v2Frame> e = frames.elements(); e.hasMoreElements();) {
 			tmp = (ID3v2Frame) e.nextElement();
 			if (tmp.getID().equals(id)) {
 				if (count == number) {
@@ -425,7 +425,7 @@ public class ID3v2 {
 	 */
 	public void removeFrames() {
 		if (frames != null) {
-			frames = new Vector();
+			frames = new Vector<ID3v2Frame>();
 		}
 	}
 
@@ -605,7 +605,7 @@ public class ID3v2 {
 
 	private ID3v2ExtendedHeader extended_header;
 
-	private Vector frames;
+	private Vector<ID3v2Frame> frames;
 
 	private boolean is_changed = false;
 
@@ -754,7 +754,7 @@ public class ID3v2 {
 		}
 
 		// // Convert bytes to ID3v2Frames
-		frames = new Vector();
+		frames = new Vector<ID3v2Frame>();
 
 		ByteArrayInputStream bis = new ByteArrayInputStream(frames_as_byte);
 		// read frames as long as there are bytes and we are not reading from
@@ -785,7 +785,7 @@ public class ID3v2 {
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream(500);
 
-		for (Enumeration e = frames.elements(); e.hasMoreElements();) {
+		for (Enumeration<ID3v2Frame> e = frames.elements(); e.hasMoreElements();) {
 			tmp = (ID3v2Frame) e.nextElement();
 			byte frame_in_bytes[] = tmp.getBytes();
 			out.write(frame_in_bytes, 0, frame_in_bytes.length);
