@@ -11,8 +11,10 @@ It is ment to generate a list of mp3 files contained in a directory to keep the 
 
 ## Ant Build
 
-On project level execute:
-	ant -buildfile build/build.xml -propertyfile build/build_FileLister.properties run
+ - On project level execute for building the jar file:
+	- ant -buildfile build/build.xml -propertyfile build/build_FileLister.properties jar
+ - On project level execute for building the javadoc documentation:
+	- ant -buildfile build/build.xml -propertyfile build/build_FileLister.properties doc
 	
 ## Usage
 
